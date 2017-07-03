@@ -191,33 +191,7 @@
             view.renderChart(chart);
         } ,
 
-        init : function() {
-           view.init();
-        }
-    };
-
-    var view =  {
-
-        exibirMensagem : function(msg) {
-            alert(msg);
-        } ,
-
-		renderizarDados : function() {
-			$('.json').hide();
-			$('.content').show();
-			var workspace     = document.getElementById('workspace');
-			var linkWorkSpace = document.getElementById('link-work-space');
-            var lastActivity  = document.getElementById('last-activity');
-
-			workspace.innerHTML = data.json.name;
-			linkWorkSpace.href = data.json.url;
-            lastActivity.innerHTML = 'Data da última atividade: ' + controller.obterDataFormatada(data.json.dateLastActivity);
-
-            controller.montarGraficoPizza();
-            controller.montarGraficoLinha();
-		} ,
-
-        renderChart : function(chart) {
+       renderChart : function(chart) {
             var ctx = document.getElementById(chart.id).getContext('2d');
 
             var mychart = new Chart(ctx, {
