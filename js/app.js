@@ -54,6 +54,61 @@
             return dataRetorno;
         } ,
 
+		obterLabels : function() {
+			var labels = [];
+			
+			data.json.labels.forEach(function(item){
+                labels.push(item.name);
+			});
+			
+			return labels;
+		} , 
+		
+		obterColorsLabels : function() {
+			var colorLabels = [];
+			
+			data.json.labels.forEach(function(item) {
+				colorLabels.push(item.color);
+			});
+			
+			return colorLabels;
+		} ,
+		
+		obterUsesLabels : function() {
+			var usesLabels = [];
+			
+			data.json.labels.forEach(function(item) {
+				usesLabels.push(item.uses);
+			});
+			
+			return usesLabels;
+		} ,
+		
+		obterQtdeFeitaEAFazer : function() {
+			var qtdeFeita = 0, qtdeAFazer = 0;
+			
+			data.json.checklists.forEach(function(item){
+				item.checkItems.forEach(function(item){
+					if(item.state === "complete")
+						qtdeFeita++;
+					else
+						qtdeAFazer++;
+				});
+			});
+			
+			return { qtdeFeita: qtdeFeita, qtdeAFazer : qtdeAFazer };
+		} ,
+		
+		obterQtdeCorrecaoComments : function() {
+			var qtdeCorrecao = 0;			
+			
+			data.json.cards.forEach(function(item){
+				qtdeCorrecao += item.badges.comments;
+			});
+			
+			return qtdeCorrecao;
+		} ,
+		
         init : function() {
            view.init();
         }
@@ -83,27 +138,20 @@
         montarGraficoLinha : function () {
             var chart = {};
 
-            var qtdeCorrecao = 0, qtdeAFazer = 0, qtdeFeita = 0;
-
-            for(var i = 0; i < data.json.cards.length; i++) {
-                var itemCard = data.json.cards[i];
-
-                qtdeCorrecao += itemCard.badges.comments;
-                qtdeAFazer   += itemCard.badges.checkItems;
-                qtdeFeita    += itemCard.badges.checkItemsChecked;
-            }
-
+            var qtdeCorrecao = controller.obterQtdeCorrecaoComments();
+			var objQtdes = controller.obterQtdeFeitaEAFazer();
+		
             chart.data =
                {
                   labels: ['Itens a fazer ou pendentes', 'Itens concluídos', 'Correções Pendentes'],
                   datasets: [{
                        label: 'Itens a fazer ou pendentes',
-                       data: [qtdeAFazer, 0, 0],
+                       data: [objQtdes.qtdeAFazer, 0, 0],
                        backgroundColor: 'black'
                      },
                      {
                        label: 'Itens concluídos',
-                       data: [0,qtdeFeita,0],
+                       data: [0,objQtdes.qtdeFeita,0],
                        backgroundColor: 'green'
                      },
                      {
@@ -122,22 +170,14 @@
 
         montarGraficoPizza : function() {
             var chart = {};
-            chart.labels = [];
-            chart.colors = [];
-            chart.data = [];
-
-            for(var i = 0; i < data.json.labels.length; i++) {
-                var itemLabel = data.json.labels[i];
-
-                chart.labels.push(itemLabel.name);
-                chart.colors.push(itemLabel.color);
-                chart.data.push(itemLabel.uses);
-            }
-
+            chart.labels = controller.obterLabels();
+            chart.colors = controller.obterColorsLabels();
+            chart.data = controller.obterUsesLabels();
+		
             chart.id = 'myChartPie';
             chart.tipo = 'pie';
             chart.title = 'Processos';
-
+			
             chart.data =
                      {
                         labels: chart.labels,
@@ -168,8 +208,6 @@
 
         renderChart : function(chart) {
             var ctx = document.getElementById(chart.id).getContext('2d');
-
-            console.log(chart.data);
 
             var mychart = new Chart(ctx, {
                       type: chart.tipo,
