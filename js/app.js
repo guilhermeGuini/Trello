@@ -2,9 +2,21 @@
 
     'use strict'
 
+    const enumState = {
+        'incomplete' : 'incomplete',
+        'complete'   : 'complete'  ,
+        'emoji'      : ':warning:'
+    };
+
+    const enumColors = {
+        'pendente'  : 'black',
+        'incompleto': 'red',
+        'completo'  : 'green'
+    };
+
     var data = {
         json: {}
-    }
+    };
 
     var controller = {
 
@@ -39,7 +51,7 @@
            // }
 		} ,
 
-        obterDataFormatada : function(dateStr) {
+        getFormatData : function(dateStr) {
             var dataRetorno = '';
 
             try {
@@ -54,39 +66,39 @@
             return dataRetorno;
         } ,
 
-		obterLabels : function() {
+		getLabels : function() {
 			var labels = [];
-			
+
 			data.json.labels.forEach(function(item){
                 labels.push(item.name);
 			});
-			
+
 			return labels;
-		} , 
-		
-		obterColorsLabels : function() {
+		} ,
+
+		getColorsLabels : function() {
 			var colorLabels = [];
-			
+
 			data.json.labels.forEach(function(item) {
 				colorLabels.push(item.color);
 			});
-			
+
 			return colorLabels;
 		} ,
-		
-		obterUsesLabels : function() {
+
+		getUsesLabels : function() {
 			var usesLabels = [];
-			
+
 			data.json.labels.forEach(function(item) {
 				usesLabels.push(item.uses);
 			});
-			
+
 			return usesLabels;
 		} ,
-		
-		obterQtdeFeitaEAFazer : function() {
+
+		getCountCheckListDoneAndDoing : function() {
 			var qtdeFeita = 0, qtdeAFazer = 0;
-			
+
 			data.json.checklists.forEach(function(item){
 				item.checkItems.forEach(function(item){
 					if(item.state === "complete")
@@ -95,20 +107,80 @@
 						qtdeAFazer++;
 				});
 			});
-			
+
 			return { qtdeFeita: qtdeFeita, qtdeAFazer : qtdeAFazer };
 		} ,
-		
-		obterQtdeCorrecaoComments : function() {
-			var qtdeCorrecao = 0;			
-			
+
+		getCountComments : function() {
+			var qtdeCorrecao = 0;
+
 			data.json.cards.forEach(function(item){
 				qtdeCorrecao += item.badges.comments;
 			});
-			
+
 			return qtdeCorrecao;
 		} ,
-		
+
+        getCard : function(idCard) {
+            var card = {};
+            for(var i = 0; i < data.json.cards.length; i++) {
+                if(data.json.cards[i].id === idCard)
+                    card = data.json.cards[i];
+            }
+
+            return card;
+        } ,
+
+        getCountCheckItems : function(checklist) {
+            var qtdeCompleto = 0, qtdePendente = 0, qtdeIncompleto = 0;
+            var card = {};
+
+            checklist.checkItems.forEach(function(item) {
+                if(item.state === enumState.incomplete) {
+
+                    if(item.name.indexOf(enumState.emoji) !== -1)
+                        qtdeIncompleto++;
+                    else
+                        qtdePendente++;
+                } else {
+                    qtdeCompleto++;
+                }
+            });
+
+            return { 'completo'  : qtdeCompleto,
+                     'pendente'  : qtdePendente,
+                     'incompleto': qtdeIncompleto,
+                     'card'      : this.getCard(checklist.idCard).name,
+                     'idCard'    : checklist.idCard
+                   };
+        } ,
+
+        getCountCheckItemsCards : function() {
+            var objCheckGroupCard = [];
+            var indexItemExists = 0;
+
+            for(var i = 0; i < data.json.checklists.length; i++) {
+                var item = data.json.checklists[i];
+                indexItemExists = -1;
+
+                for(var j = 0; j < objCheckGroupCard.length; j++) {
+                    if(objCheckGroupCard[j].idCard === item.idCard)
+                        indexItemExists = j;
+                }
+
+                if(indexItemExists !== -1) {
+
+                    var qtdeItem = this.getCountCheckItems(item);
+                    objCheckGroupCard[indexItemExists].completo   += qtdeItem.completo;
+                    objCheckGroupCard[indexItemExists].pendente   += qtdeItem.pendente;
+                    objCheckGroupCard[indexItemExists].incompleto += qtdeItem.incompleto;
+                }
+                else
+                    objCheckGroupCard.push(controller.getCountCheckItems(item));
+            }
+            return objCheckGroupCard;
+        } ,
+
         init : function() {
            view.init();
         }
@@ -129,36 +201,87 @@
 
 			workspace.innerHTML = data.json.name;
 			linkWorkSpace.href = data.json.url;
-            lastActivity.innerHTML = 'Data da última atividade: ' + controller.obterDataFormatada(data.json.dateLastActivity);
+            lastActivity.innerHTML = 'Data da última atividade: ' + controller.getFormatData(data.json.dateLastActivity);
 
             this.montarGraficoPizza();
             this.montarGraficoLinha();
+            this.renderizarGraficosFunc();
 		} ,
+
+        renderizarGraficosFunc : function() {
+            var divChartDetails = document.getElementById('chart-details');
+
+            var checkItemsList = controller.getCountCheckItemsCards();
+            var labels = ['A fazer', 'Pendentes', 'Concluídos'];
+
+            checkItemsList.forEach(function(item) {
+                var chart = {};
+
+               /* var newTemplate = template.replace("{id}", item.idCard);
+                divChartDetails.innerHTML += newTemplate;*/
+
+                var divElem = document.createElement("div");
+                divElem.className += "col-md-6 details";
+
+                var canvasElem = document.createElement("canvas");
+                canvasElem.id = item.idCard;
+
+                divElem.appendChild(canvasElem);
+                divChartDetails.appendChild(divElem);
+
+               chart.data =
+               {
+                  labels: labels,
+                  datasets: [{
+                       label: labels[0],
+                       data: [item.pendente, 0, 0],
+                       backgroundColor: enumColors.pendente
+                     },
+                     {
+                       label: labels[1],
+                       data: [0, item.incompleto, 0],
+                       backgroundColor:  enumColors.incompleto
+                     },
+                     {
+                       label: labels[2],
+                       data: [0, 0, item.completo],
+                       backgroundColor: enumColors.completo
+                    }
+                  ]
+               };
+
+               chart.id = item.idCard;
+               chart.tipo = 'bar';
+               chart.title = item.card;
+               view.renderChart(chart);
+            });
+        } ,
 
         montarGraficoLinha : function () {
             var chart = {};
 
-            var qtdeCorrecao = controller.obterQtdeCorrecaoComments();
-			var objQtdes = controller.obterQtdeFeitaEAFazer();
-		
+            var qtdeCorrecao = controller.getCountComments();
+			var objQtdes = controller.getCountCheckListDoneAndDoing();
+
             chart.data =
                {
-                  labels: ['Itens a fazer ou pendentes', 'Itens concluídos', 'Correções Pendentes'],
+                  labels: ['Itens a fazer ou pendentes', 'Correções Pendentes', 'Itens concluídos'],
                   datasets: [{
                        label: 'Itens a fazer ou pendentes',
                        data: [objQtdes.qtdeAFazer, 0, 0],
-                       backgroundColor: 'black'
-                     },
-                     {
-                       label: 'Itens concluídos',
-                       data: [0,objQtdes.qtdeFeita,0],
-                       backgroundColor: 'green'
+                       backgroundColor: enumColors.pendente
                      },
                      {
                        label: 'Correções Pendentes',
-                       data: [0,0,qtdeCorrecao],
-                       backgroundColor: 'red'
-                    }
+                       data: [0, qtdeCorrecao, 0],
+                       backgroundColor: enumColors.incompleto
+                    },
+
+                     {
+                       label: 'Itens concluídos',
+                       data: [0, 0, objQtdes.qtdeFeita],
+                       backgroundColor: enumColors.completo
+                     }
                   ]
                };
 
@@ -170,14 +293,14 @@
 
         montarGraficoPizza : function() {
             var chart = {};
-            chart.labels = controller.obterLabels();
-            chart.colors = controller.obterColorsLabels();
-            chart.data = controller.obterUsesLabels();
-		
+            chart.labels = controller.getLabels();
+            chart.colors = controller.getColorsLabels();
+            chart.data = controller.getUsesLabels();
+
             chart.id = 'myChartPie';
             chart.tipo = 'pie';
             chart.title = 'Processos';
-			
+
             chart.data =
                      {
                         labels: chart.labels,
@@ -221,7 +344,6 @@
                 btn.addEventListener('click', controller.armazenarJson);
             }
 
-
         // Define a plugin to provide data labels
         Chart.plugins.register({
             afterDatasetsDraw: function(chart, easing) {
@@ -242,6 +364,8 @@
 
                             // Just naively convert to string for now
                             var dataString = dataset.data[index].toString();
+                            if(dataString === "0")
+                                return;
 
                             // Make sure alignment settings are correct
                             ctx.textAlign = 'center';
