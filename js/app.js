@@ -44,7 +44,7 @@
 
             try {
                 data.json = JSON.parse(txtJson.value);
-				localStorage.setItem("json", data.json);
+				localStorage.setItem("json", JSON.stringify(data.json));
 				view.renderizarDados();
             } catch (err) {
                 console.log(err.message);
@@ -189,10 +189,11 @@
 		} , 
 
         init : function() {
+					   
            view.init();
 		   
 		   if(localStorage.getItem("json") !== null) {
-			   data.json = localStorage.getItem("json");
+			   data.json = JSON.parse(localStorage.getItem("json"));
 			   view.renderizarDados();
 		   }
 			   
@@ -207,6 +208,7 @@
 
 		renderizarDados : function() {
 			this.controlarExibicao();
+		   
 			var workspace     = document.getElementById('workspace');
 			var linkWorkSpace = document.getElementById('link-work-space');
             var lastActivity  = document.getElementById('last-activity');
@@ -284,7 +286,8 @@
 
             var qtdeCorrecao = controller.getCountComments();
 			var objQtdes = controller.getCountCheckListDoneAndDoing();
-
+			var qtdeMaxima = 0, resultadoDivisao = 0;
+			
             chart.data =
                {
                   labels: ['Itens a fazer ou pendentes', 'Correções Pendentes', 'Itens concluídos'],
@@ -306,10 +309,19 @@
                      }
                   ]
                };
+			   
+			resultadoDivisao = qtdeCorrecao / 10;
+			qtdeMaxima = (resultadoDivisao + 1) * 10;
+			if(qtdeMaxima - qtdeCorrecao < 5)
+				qtdeMaxima += 5;
 
             chart.id = 'myChartBar';
             chart.tipo = 'bar';
-            chart.title = 'Funcionalidades / Correções';
+            chart.title = 'Funcionalidades / Correções';			
+		    chart.beginAtZero = true;
+            chart.steps = 10;
+            chart.stepValue = 5;
+			chart.max = qtdeMaxima;
             view.renderChart(chart);
         } ,
 
@@ -332,7 +344,10 @@
                             backgroundColor: chart.colors
                         }]
                      }
-
+			chart.beginAtZero= true;
+            chart.steps= 10;
+            chart.stepValue= 5;
+            chart.max= 100;
             view.renderChart(chart);
         } ,
 
@@ -346,6 +361,19 @@
                         responsive: true,
                         legend: {
                           position: 'top',
+                        }, 
+						scales: {
+                          xAxes: [{
+                            display: false
+                          }],
+                          yAxes: [{
+                            display: true,
+                            ticks: {
+                                beginAtZero: chart.beginAtZero,
+                                steps: chart.steps
+                                max: chart.max
+                            }
+                         }]
                         },
                         title: {
                            display: true,
