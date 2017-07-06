@@ -1,4 +1,4 @@
-# Trello
+## Trello ##
 Para este projeto funcionar corretamente é necessário que os cartões do Trello estejam parametrizados corretamente.
 
 1. Deve ser definido uma etiqueta com uma cor para cada situação.
