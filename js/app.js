@@ -42,13 +42,14 @@
 				return;
 			}
 
-            //try {
+            try {
                 data.json = JSON.parse(txtJson.value);
+				localStorage.setItem("json", data.json);
 				view.renderizarDados();
-          //  } catch (err) {
-            //    console.log(err.message);
-           //     view.exibirMensagem('Ocorreu um erro ao converter Json.');
-           // }
+            } catch (err) {
+                console.log(err.message);
+                view.exibirMensagem('Ocorreu um erro ao converter Json.');
+            }
 		} ,
 
         getFormatData : function(dateStr) {
@@ -180,9 +181,21 @@
             }
             return objCheckGroupCard;
         } ,
+		
+		novaConsulta : function() {
+			localStorage.clear();
+			data.json = {};
+			view.controlarExibicao();
+		} , 
 
         init : function() {
            view.init();
+		   
+		   if(localStorage.getItem("json") !== null) {
+			   data.json = localStorage.getItem("json");
+			   view.renderizarDados();
+		   }
+			   
         }
     };
 
@@ -193,8 +206,7 @@
         } ,
 
 		renderizarDados : function() {
-			$('.json').hide();
-			$('.content').show();
+			this.controlarExibicao();
 			var workspace     = document.getElementById('workspace');
 			var linkWorkSpace = document.getElementById('link-work-space');
             var lastActivity  = document.getElementById('last-activity');
@@ -207,6 +219,16 @@
             this.montarGraficoLinha();
             this.renderizarGraficosFunc();
 		} ,
+		
+		controlarExibicao : function() {
+			 if(localStorage.getItem("json") !== null) { 
+				$('.json').hide();
+		    	$('.content').show();
+			 } else {
+				 $('.content').hide();
+				 $('.json').show();
+			 }
+		} , 
 
         renderizarGraficosFunc : function() {
             var divChartDetails = document.getElementById('chart-details');
@@ -314,7 +336,7 @@
             view.renderChart(chart);
         } ,
 
-       renderChart : function(chart) {
+        renderChart : function(chart) {
             var ctx = document.getElementById(chart.id).getContext('2d');
 
             var mychart = new Chart(ctx, {
@@ -334,8 +356,9 @@
         } ,
 
 		init: function() {
-            $('.content').hide();
-
+            this.controlarExibicao();
+			
+			var btnNovo = document.getElementById('btnNovo');
 			var btn = document.getElementById('btnGerarGraf');
 
             if(!btn) {
@@ -343,9 +366,15 @@
             } else {
                 btn.addEventListener('click', controller.armazenarJson);
             }
+			
+			if(!btnNovo) {
+				console.log('Erro inesperado.');
+			} else {
+				btnNovo.addEventListener('click', controller.novaConsulta);
+			}
 
-        // Define a plugin to provide data labels
-        Chart.plugins.register({
+             // Define a plugin to provide data labels
+            Chart.plugins.register({
             afterDatasetsDraw: function(chart, easing) {
                 // To only draw at the end of animation, check for easing === 1
                 var ctx = chart.ctx;
