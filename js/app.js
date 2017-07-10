@@ -181,22 +181,23 @@
             }
             return objCheckGroupCard;
         } ,
-		
+
 		novaConsulta : function() {
 			localStorage.clear();
 			data.json = {};
 			view.controlarExibicao();
-		} , 
+            document.getElementById('chart-details').innerHTML = '';
+		} ,
 
         init : function() {
-					   
+
            view.init();
-		   
+
 		   if(localStorage.getItem("json") !== null) {
 			   data.json = JSON.parse(localStorage.getItem("json"));
 			   view.renderizarDados();
 		   }
-			   
+
         }
     };
 
@@ -208,7 +209,7 @@
 
 		renderizarDados : function() {
 			this.controlarExibicao();
-		   
+
 			var workspace     = document.getElementById('workspace');
 			var linkWorkSpace = document.getElementById('link-work-space');
             var lastActivity  = document.getElementById('last-activity');
@@ -221,16 +222,16 @@
             this.montarGraficoLinha();
             this.renderizarGraficosFunc();
 		} ,
-		
+
 		controlarExibicao : function() {
-			 if(localStorage.getItem("json") !== null) { 
+			 if(localStorage.getItem("json") !== null) {
 				$('.json').hide();
 		    	$('.content').show();
 			 } else {
 				 $('.content').hide();
 				 $('.json').show();
 			 }
-		} , 
+		} ,
 
         renderizarGraficosFunc : function() {
             var divChartDetails = document.getElementById('chart-details');
@@ -240,9 +241,6 @@
 
             checkItemsList.forEach(function(item) {
                 var chart = {};
-
-               /* var newTemplate = template.replace("{id}", item.idCard);
-                divChartDetails.innerHTML += newTemplate;*/
 
                 var divElem = document.createElement("div");
                 divElem.className += "col-md-6 details";
@@ -287,7 +285,7 @@
             var qtdeCorrecao = controller.getCountComments();
 			var objQtdes = controller.getCountCheckListDoneAndDoing();
 			var qtdeMaxima = 0, resultadoDivisao = 0;
-			
+
             chart.data =
                {
                   labels: ['Itens a fazer ou pendentes', 'Correções Pendentes', 'Itens concluídos'],
@@ -309,7 +307,7 @@
                      }
                   ]
                };
-			   
+
 			resultadoDivisao = qtdeCorrecao / 10;
 			qtdeMaxima = (resultadoDivisao + 1) * 10;
 			if(qtdeMaxima - qtdeCorrecao < 5)
@@ -317,10 +315,8 @@
 
             chart.id = 'myChartBar';
             chart.tipo = 'bar';
-            chart.title = 'Funcionalidades / Correções';			
+            chart.title = 'Funcionalidades / Correções';
 		    chart.beginAtZero = true;
-            chart.steps = 10;
-            chart.stepValue = 5;
 			chart.max = qtdeMaxima;
             view.renderChart(chart);
         } ,
@@ -345,8 +341,6 @@
                         }]
                      }
 			chart.beginAtZero= true;
-            chart.steps= 10;
-            chart.stepValue= 5;
             chart.max= 100;
             view.renderChart(chart);
         } ,
@@ -361,20 +355,8 @@
                         responsive: true,
                         legend: {
                           position: 'top',
-                        }, 
-						scales: {
-                          xAxes: [{
-                            display: false
-                          }],
-                          yAxes: [{
-                            display: true,
-                            ticks: {
-                                beginAtZero: chart.beginAtZero,
-                                steps: chart.steps
-                                max: chart.max
-                            }
-                         }]
                         },
+
                         title: {
                            display: true,
                            text: chart.title
@@ -385,7 +367,7 @@
 
 		init: function() {
             this.controlarExibicao();
-			
+
 			var btnNovo = document.getElementById('btnNovo');
 			var btn = document.getElementById('btnGerarGraf');
 
@@ -394,7 +376,7 @@
             } else {
                 btn.addEventListener('click', controller.armazenarJson);
             }
-			
+
 			if(!btnNovo) {
 				console.log('Erro inesperado.');
 			} else {
