@@ -186,7 +186,7 @@
 			localStorage.clear();
 			data.json = {};
 			view.controlarExibicao();
-            document.getElementById('chart-details').innerHTML = '';
+			view.clearPage();
 		} ,
 
         init : function() {
@@ -205,14 +205,18 @@
 
         exibirMensagem : function(msg) {
             alert(msg);
+        },
+
+        clearPage : function() {
+            document.getElementById('chart-details').innerHTML = '';
         } ,
 
 		renderizarDados : function() {
 			this.controlarExibicao();
 
 			var workspace     = document.getElementById('workspace');
+			var lastActivity = document.getElementById('last-activity');
 			var linkWorkSpace = document.getElementById('link-work-space');
-            var lastActivity  = document.getElementById('last-activity');
 
 			workspace.innerHTML = data.json.name;
 			linkWorkSpace.href = data.json.url;
@@ -226,10 +230,14 @@
 		controlarExibicao : function() {
 			 if(localStorage.getItem("json") !== null) {
 				$('.json').hide();
-		    	$('.content').show();
+				$('.content').show();
+				$('#link-work-space').show();
+				$('#titleDefault').hide();
 			 } else {
-				 $('.content').hide();
-				 $('.json').show();
+			     $('.json').show();
+			     $('.content').hide();
+			     $('#link-work-space').hide();
+			     $('#titleDefault').show();
 			 }
 		} ,
 
