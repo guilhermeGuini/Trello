@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="css/site.css">
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <style>
         canvas {
             -moz-user-select: none;
@@ -82,9 +82,31 @@
 
             <div class="row" id="chart-details">
             </div>
+
+            <div class"row">
+                <div class="col-xs-12">
+                    <div class="panel panel-default">
+                    <!-- Default panel contents -->
+                    <div class="panel-heading">
+                        Correções Abertas
+                    </div>
+                        <table class="table table-hover table-responsive" id="smsTable">
+                            <thead>
+                                <th>#</th>
+                                <th>SMSs abertas</th>
+                                <th>Funcionalidade</th>
+                                <th><input type="button" class="btn btn-warning" id="btnSMSsSeparadas" value="SMSs separadas por ;" /></th>
+                            </thead>
+                            <tbody>
+                            </tbody>    
+                        </table>
+                    </div>
+                </div>
+            </div>
         </div>
 
     </div>
+
     <script type="text/javascript" src="js/jquery-3.2.1.min.js"></script>
     <script type="text/javascript" src="js/bootstrap.min.js"></script>
     <script type="text/javascript" src="js/chartjs/Chart.bundle.min.js"></script>
