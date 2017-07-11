@@ -13,7 +13,8 @@
            'pendente'  : 'black',
            'incompleto': 'red',
            'completo'  : 'green'
-         } 
+         } ,
+         titleAlerta : 'Alerta'
     };
 
     var controller = {
@@ -21,12 +22,12 @@
         validarJson : function (jsonElem) {
 
             if(!jsonElem) {
-               view.exibirMensagem('Erro inesperado.');
+               view.exibirMensagem('Erro inesperado.', data.titleAlerta);
                return false;
             }
 
             if(jsonElem.value.length === 0) {
-                view.exibirMensagem('Informe um arquivo Json.');
+                view.exibirMensagem('Informe um arquivo Json.', data.titleAlerta);
                 return false;
             }
 
@@ -46,7 +47,7 @@
 				view.renderizarDados();
             } catch (err) {
                 console.log(err.message);
-                view.exibirMensagem('Ocorreu um erro ao converter Json.');
+                view.exibirMensagem('Ocorreu um erro ao converter Json.', data.titleAlerta);
             }
 		} ,
 
@@ -214,27 +215,31 @@
 
     var view =  {
 
-        exibirMensagem : function(msg) {
-            alert(msg);
+        exibirMensagem : function(msg, title) {
+            $('#modalAlert h4').text(title);
+            $('#modalAlert p').text(msg);
+            $('#modalAlert').modal({'show': true});
         },
 
         clearPage : function() {
             document.getElementById('chart-details').innerHTML = '';
+            $('#smsTable tbody').empty();
+            $('#txtJson').val('');
         } ,
 
-		controlarExibicao : function() {
-			 if(localStorage.getItem("json") !== null) {
-				$('.json').hide();
-				$('.content').show();
-				$('#link-work-space').show();
-				$('#titleDefault').hide();
-			 } else {
-			     $('.json').show();
-			     $('.content').hide();
-			     $('#link-work-space').hide();
-			     $('#titleDefault').show();
-			 }
-		} ,
+        controlarExibicao : function() {
+          if(localStorage.getItem("json") !== null) {
+            $('.json').hide();
+            $('.content').show();
+            $('#link-work-space').show();
+            $('#titleDefault').hide();
+          } else {
+            $('.json').show();
+            $('.content').hide();
+            $('#link-work-space').hide();
+            $('#titleDefault').show();
+          }
+        } ,
 
         renderizarGraficosDetalhes : function() {
             var divChartDetails = document.getElementById('chart-details');
@@ -244,15 +249,19 @@
             checkItemsList.forEach(function(item) {
                 var chart = {};
 
+                var divCol = document.createElement("div");
+                divCol.className += "col-md-6 details";
+
                 var divElem = document.createElement("div");
-                divElem.className += "col-md-6 details";
+                divElem.className += "backgroundChart";
 
                 var canvasElem = document.createElement("canvas");
                 canvasElem.id = item.idCard;
 
                 divElem.appendChild(canvasElem);
-                divChartDetails.appendChild(divElem);
-                
+                divCol.appendChild(divElem);
+                divChartDetails.appendChild(divCol);
+
                view.montarGrafico(
                 { 'aFazer': item.aFazer , 'pendente': item.pendente, 'concluido': item.completo },
                 { 'aFazer': 'A fazer', 'pendente': 'Pendentes', 'concluido': 'Concluídos' },
@@ -262,7 +271,7 @@
 
         montarGrafico : function (objValores, labels, title, type, id) {
             var chart = {};
-          
+
             chart.data =
                {
                   labels: Object.values(labels),
@@ -310,7 +319,7 @@
                             backgroundColor: chart.colors
                         }]
                      }
-			
+
             view.renderChart(chart);
         } ,
 
@@ -383,38 +392,36 @@
         } ,
 
         exibirDetalhesSMS : function() {
-            
+
             var sms = controller.getSMSs();
-            
+
             if(sms.length === 0)
              return;
 
             sms.forEach(function(item, pos) {
-               var newRow = $("<tr>");             
+               var newRow = $("<tr>");
                newRow.append('<td>' + (pos + 1) + '</td>');
                newRow.append('<td>' + item.sms + '</td>');
                newRow.append('<td>' + item.funcionalidade + '</td>');
                newRow.append('<td></td>');
                $('#smsTable').append(newRow);
             });
-            
+
             return false;
         } ,
 
         exibirSMSsSeparadas : function() {
             var table = $('#smsTable').children('tbody').children('tr');
             var strBuilder = '';
-            var valueTd = '';
 
             $.each(table, function(key, value) {
-               valueTd = $(value).children('td')[1].innerHTML;                             
-               strBuilder += valueTd.substring(0, valueTd.length -1) + ';';
+               strBuilder += $(value).children('td')[1].innerHTML + ';';
             });
 
             if(strBuilder.length > 0)
                strBuilder = strBuilder.substring(0, strBuilder.length - 1);
 
-            view.exibirMensagem(strBuilder);
+            view.exibirMensagem(strBuilder, 'SMSs de Correções');
         } ,
 
         renderizarDados : function() {
@@ -454,7 +461,7 @@
 			}
 
             if(!btnSMSs) {
-                console.log('Erro inesperado.');                
+                console.log('Erro inesperado.');
             } else {
                 btnSMSs.addEventListener('click', this.exibirSMSsSeparadas);
             }

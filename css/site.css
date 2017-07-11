@@ -1,3 +1,22 @@
+body {
+    padding: 0px;
+    margin: 0px;
+    background: #f2f2f2;
+}
+
+.container {
+    background: #FFF;
+    box-shadow: 10px 10px 5px #888888;
+ }
+
+.backgroundChart {
+    background-color: lightgoldenrodyellow;
+}
+
+.row {
+    margin-bottom: 10px;
+}
+
 .chart-etiqueta {
     margin-bottom: 30px;
 }

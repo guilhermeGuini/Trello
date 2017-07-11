@@ -31,8 +31,6 @@
         </div>
 
         <div class="json">
-
-
             <div class="row">
                 <div class="col-xs-12">
                     <textarea rows="10" id="txtJson" class="form-control"></textarea>
@@ -73,17 +71,21 @@
 
             <div class="row chart-etiqueta">
                 <div class="col-xs-12 col-md-4">
+                <div class=" backgroundChart">
                     <canvas id="myChartPie"></canvas>
+                    </div>
                 </div>
-                <div class="col-xs-12 col-md-8">
+                <div class="col-xs-12 col-md-8" >
+                <div class=" backgroundChart">
                     <canvas id="myChartBar"></canvas>
+                    </div>
                 </div>
             </div>
 
             <div class="row" id="chart-details">
             </div>
 
-            <div class"row">
+            <div class="row">
                 <div class="col-xs-12">
                     <div class="panel panel-default">
                     <!-- Default panel contents -->
@@ -98,13 +100,36 @@
                                 <th><input type="button" class="btn btn-warning" id="btnSMSsSeparadas" value="SMSs separadas por ;" /></th>
                             </thead>
                             <tbody>
-                            </tbody>    
+                            </tbody>
                         </table>
                     </div>
                 </div>
             </div>
         </div>
 
+    </div>
+
+    <div class="container">
+    <div class="modal fade" id="modalAlert" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title"></h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-xs-12">
+                        <p></p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Fechar</button>
+            </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
     </div>
 
     <script type="text/javascript" src="js/jquery-3.2.1.min.js"></script>
